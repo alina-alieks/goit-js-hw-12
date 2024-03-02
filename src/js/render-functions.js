@@ -80,7 +80,8 @@ function loadMoreImages() {
             btnLoadMore.classList.add("is-hidden");
             iziToast.info({
             position: "topRight",
-            theme: "dark",
+                theme: "dark",
+            backgroundColor: "#4e75ff",
             transitionIn: "fadeInRight",
             message: "We're sorry, but you've reached the end of search results.",
             })
