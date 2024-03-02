@@ -20,11 +20,17 @@ const showErrorMessage = () => iziToast.error({
 
 const form = document.querySelector(".form");
 const gallery = document.querySelector(".gallery");
-const loader = document.querySelector(".loader")
+const loader = document.querySelector(".loader");
+const btnLoadMore = document.querySelector(".btn-load-more");
 
 //Функція додавання та видалення класу "is-hidden" для видимості завантажувача
 const showLoader = () => loader.classList.toggle("is-hidden");
 
+form.addEventListener("submit", getImagesFromPixabay);
+
+let limit = 15;
+let page = 1;
+let currentInputSearch;
 
 //Функція до слухача події до кнопки - відправка запиту та відповідь
 function getImagesFromPixabay(event) {
@@ -32,24 +38,21 @@ function getImagesFromPixabay(event) {
     gallery.innerHTML = "";
     const input = event.currentTarget.elements.image.value.trim();
     const inputSearch = input.split(" ").join("+");
-    
+    btnLoadMore.classList.add("is-hidden")
+
     if (input) {
         showLoader();
-        getImagesService(inputSearch)
+        getImagesService(inputSearch, page, limit)
             .then(response => {
-                if (!response.ok) {
-                throw new Error(`Error request ${response.status}`)
-                }
-                return response.json();
-                })
-            .then(data => {
                 showLoader();
-                if (data.hits.length !== 0) {
-                    // console.log(data.hits)
-                    markup(data);
+                if (response.data.hits.length !== 0) {
+                    markup(response.data);
+                    btnLoadMore.classList.remove("is-hidden");
+                    currentInputSearch = inputSearch;
                     form.reset()
                 } else {
-                    showErrorMessage()
+                    showErrorMessage();
+                    btnLoadMore.classList.add("is-hidden");
                     }
             })
             .catch(error => {
@@ -57,12 +60,47 @@ function getImagesFromPixabay(event) {
                 showLoader()
                 showErrorMessage();
             })
+    } else {
+        showErrorMessage();
+        
         }
 }
-form.addEventListener("submit", getImagesFromPixabay)
 
+btnLoadMore.addEventListener("click", loadMoreImages);
 
-//Вікористання бібліотеки
+//Функція до слухача події до кнопки - загрузка більше 
+function loadMoreImages() {
+    showLoader();
+    page++
+    getImagesService(currentInputSearch, page, limit)
+        .then(response => { 
+            // console.log(response)
+            if (response.data.totalHits < (limit * page)) {
+            showLoader();
+            btnLoadMore.classList.add("is-hidden");
+            iziToast.info({
+            position: "topRight",
+            theme: "dark",
+            transitionIn: "fadeInRight",
+            message: "We're sorry, but you've reached the end of search results.",
+            })
+                
+            } else {
+            showLoader();
+            markup(response.data);
+            btnLoadMore.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+            });
+            // console.log(response)
+        }
+        })
+        .catch(() => {
+            showLoader();
+            btnLoadMore.classList.add("is-hidden")})
+}
+
+//Вікористання бібліотеки SimpleLightbox
 const lightbox = new SimpleLightbox('.gallery a', { captionsData: "alt", captionDelay: 250 } );
 
 //Додавання HTML коду списку галереї
@@ -92,7 +130,7 @@ data.hits.map(({ webformatURL, largeImageURL, tags, likes, views, comments, down
             </ul>
     </li>`
     }).join("");
-    gallery.innerHTML = galleryHTML;
+    gallery.insertAdjacentHTML("beforeend", galleryHTML);
     //Оновлення метод refresh() для даних Ajax Calls або після DOM-маніпуляцій 
     lightbox.refresh();
     //Стилі бібліотеки simplelightbox
@@ -111,4 +149,6 @@ data.hits.map(({ webformatURL, largeImageURL, tags, likes, views, comments, down
     overlayImage.style.backgroundColor = "rgba(46, 47, 66, 0.80)";
     });
 }
+
+
 

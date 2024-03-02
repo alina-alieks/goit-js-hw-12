@@ -51,19 +51,26 @@ h1 {
   border-color: #4e75ff;
 }
 
-.btn-search-image {
+.btn-search-image,
+.btn-load-more {
   border: none;
   border-radius: 8px;
   padding: 8px 16px;
-  width: 91px;
   height: 40px;
   background: #4e75ff;
   color: #ffffff;
   font-weight: 500;
 }
-
+.btn-load-more {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 32px;
+}
 .btn-search-image:hover,
-.btn-search-image:focus {
+.btn-search-image:focus,
+.btn-load-more:hover,
+.btn-load-more:focus {
   background: #6c8cff;
 }
 
