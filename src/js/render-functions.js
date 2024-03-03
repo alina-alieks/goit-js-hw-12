@@ -23,8 +23,10 @@ const gallery = document.querySelector(".gallery");
 const loader = document.querySelector(".loader");
 const btnLoadMore = document.querySelector(".btn-load-more");
 
+
 //Функція додавання та видалення класу "is-hidden" для видимості завантажувача
 const showLoader = () => loader.classList.toggle("is-hidden");
+
 
 form.addEventListener("submit", getImagesFromPixabay);
 
@@ -48,6 +50,7 @@ function getImagesFromPixabay(event) {
                 if (response.data.hits.length !== 0) {
                     markup(response.data);
                     btnLoadMore.classList.remove("is-hidden");
+                    scrollImages();
                     currentInputSearch = inputSearch;
                     form.reset()
                 } else {
@@ -62,7 +65,6 @@ function getImagesFromPixabay(event) {
             })
     } else {
         showErrorMessage();
-        
         }
 }
 
@@ -76,23 +78,20 @@ function loadMoreImages() {
         .then(response => { 
             // console.log(response)
             if (response.data.totalHits < (limit * page)) {
-            showLoader();
-            btnLoadMore.classList.add("is-hidden");
-            iziToast.info({
-            position: "topRight",
-                theme: "dark",
-            backgroundColor: "#4e75ff",
-            transitionIn: "fadeInRight",
-            message: "We're sorry, but you've reached the end of search results.",
-            })
+                showLoader();
+                btnLoadMore.classList.add("is-hidden");
+                iziToast.info({
+                    position: "topRight",
+                    theme: "dark",
+                    backgroundColor: "#4e75ff",
+                    transitionIn: "fadeInRight",
+                    message: "We're sorry, but you've reached the end of search results.",
+                })
                 
             } else {
             showLoader();
             markup(response.data);
-            btnLoadMore.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-            });
+            scrollImages();
             // console.log(response)
         }
         })
@@ -102,7 +101,19 @@ function loadMoreImages() {
 }
 
 //Вікористання бібліотеки SimpleLightbox
-const lightbox = new SimpleLightbox('.gallery a', { captionsData: "alt", captionDelay: 250 } );
+const lightbox = new SimpleLightbox('.gallery a', { captionsData: "alt", captionDelay: 250 });
+
+//Функція плавного скролу
+function scrollImages() {
+    const itemGallery = document.querySelector(".gallery-item");
+    const rect = itemGallery.getBoundingClientRect();
+    // console.log(rect.height);
+    window.scrollBy({
+        top: 2 * rect.height,
+        behavior: "smooth",
+    });
+}
+
 
 //Додавання HTML коду списку галереї
 function markup(data) {
