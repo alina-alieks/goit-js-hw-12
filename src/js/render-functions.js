@@ -31,13 +31,14 @@ const showLoader = () => loader.classList.toggle("is-hidden");
 form.addEventListener("submit", getImagesFromPixabay);
 
 let limit = 15;
-let page = 1;
+let page;
 let currentInputSearch;
 
 //Функція до слухача події до кнопки - відправка запиту та відповідь
 function getImagesFromPixabay(event) {
     event.preventDefault();
     gallery.innerHTML = "";
+    page = 1;
     const input = event.currentTarget.elements.image.value.trim();
     const inputSearch = input.split(" ").join("+");
     btnLoadMore.classList.add("is-hidden")
