@@ -80,6 +80,7 @@ function loadMoreImages() {
             // console.log(response)
             if (response.data.totalHits < (limit * page)) {
                 showLoader();
+                markup(response.data)
                 btnLoadMore.classList.add("is-hidden");
                 iziToast.info({
                     position: "topRight",
